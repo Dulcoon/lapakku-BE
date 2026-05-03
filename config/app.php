@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'shipping_origin_city' => env('SHIPPING_ORIGIN_CITY', '501'),
+
 ];
