@@ -102,7 +102,7 @@ class RajaongkirService
                 return [];
             }
 
-            $response = $this->httpClient()->post($this->baseUrl . 'calculate/domestic-cost', [
+            $response = $this->httpClient()->asForm()->post($this->baseUrl . 'calculate/domestic-cost', [
                 'origin' => $originCityId,
                 'destination' => $destinationCityId,
                 'weight' => $weight,
@@ -126,7 +126,7 @@ class RajaongkirService
     public function getTracking(string $waybill, string $courier)
     {
         try {
-            $response = $this->httpClient()->post($this->baseUrl . 'tracking', [
+            $response = $this->httpClient()->asForm()->post($this->baseUrl . 'tracking', [
                 'waybill' => $waybill,
                 'courier' => $courier,
             ]);
