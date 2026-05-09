@@ -187,10 +187,12 @@ class ShippingController extends Controller
             'cities' => array_map(function ($city) {
                 return [
                     'id' => $city['id'] ?? null,
-                    'name' => $city['full_name'] ?? $city['name'] ?? '',
-                    'type' => $city['type'] ?? '',
-                    'province' => $city['province'] ?? '',
-                    'postal_code' => $city['postal_code'] ?? '',
+                    'label' => $city['label'] ?? '',
+                    'city_name' => $city['city_name'] ?? '',
+                    'province' => $city['province_name'] ?? '',
+                    'district' => $city['district_name'] ?? '',
+                    'subdistrict' => $city['subdistrict_name'] ?? '',
+                    'postal_code' => $city['zip_code'] ?? '',
                 ];
             }, $results),
         ]);
