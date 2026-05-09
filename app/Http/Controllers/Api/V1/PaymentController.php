@@ -46,11 +46,14 @@ class PaymentController extends Controller
                 return response()->json(['message' => 'User tidak ditemukan'], 400);
             }
 
-            $params = [
-                'transaction_details' => [
-                    'order_id' => $order->order_number,
-                    'gross_amount' => (int) $order->grand_total,
-                ],
+        // Generate unique order_id for Midtrans to avoid "order_id already used" error
+        $uniqueOrderId = $order->order_number . '_' . time() . '_' . bin2hex(random_bytes(4));
+        
+        $params = [
+            'transaction_details' => [
+                'order_id' => $uniqueOrderId,
+                'gross_amount' => (int) $order->grand_total,
+            ],
                 'customer_details' => [
                     'first_name' => $order->user->name,
                     'email' => $order->user->email,
@@ -97,7 +100,10 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
-        $order = Order::where('order_number', $request->order_id)->first();
+        // Extract base order_number from order_id (remove timestamp and random suffix)
+        // Format: ORDERNUMBER_TIMESTAMP_RANDOM
+        $baseOrderId = preg_replace('/_\d+_[a-f0-9]+$/', '', $request->order_id);
+        $order = Order::where('order_number', $baseOrderId)->first();
 
         if (!$order) {
             \Illuminate\Support\Facades\Log::warning('Midtrans Order not found', ['order_id' => $request->order_id]);

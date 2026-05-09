@@ -72,6 +72,17 @@ class RajaongkirService
     public function getShippingCost(string $origin, string $destination, int $weight, string $courier)
     {
         try {
+            // Validate origin and destination are not empty
+            if (empty(trim($origin))) {
+                Log::warning('Rajaongkir: Origin is empty');
+                return [];
+            }
+
+            if (empty(trim($destination))) {
+                Log::warning('Rajaongkir: Destination is empty');
+                return [];
+            }
+
             $originId = $this->getCityIdByName($origin);
             if (!$originId) {
                 Log::warning('Rajaongkir: Origin not found for: ' . $origin);
