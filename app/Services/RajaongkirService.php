@@ -69,35 +69,42 @@ class RajaongkirService
         return null;
     }
 
-    public function getShippingCost(string $origin, string $destination, int $weight, string $courier)
+    public function getShippingCost(string $origin, string $destination, int $weight, string $courier, ?string $originId = null, ?string $destinationId = null)
     {
         try {
-            // Validate origin and destination are not empty
-            if (empty(trim($origin))) {
-                Log::warning('Rajaongkir: Origin is empty');
-                return [];
+            // Resolve origin ID: use provided ID if available, otherwise lookup by name
+            $originCityId = $originId;
+            if (!$originCityId) {
+                // Validate origin name is not empty
+                if (empty(trim($origin))) {
+                    Log::warning('Rajaongkir: Origin is empty');
+                    return [];
+                }
+                $originCityId = $this->getCityIdByName($origin);
             }
-
-            if (empty(trim($destination))) {
-                Log::warning('Rajaongkir: Destination is empty');
-                return [];
-            }
-
-            $originId = $this->getCityIdByName($origin);
-            if (!$originId) {
+            if (!$originCityId) {
                 Log::warning('Rajaongkir: Origin not found for: ' . $origin);
                 return [];
             }
 
-            $destinationId = $this->getCityIdByName($destination);
-            if (!$destinationId) {
+            // Resolve destination ID: use provided ID if available, otherwise lookup by name
+            $destinationCityId = $destinationId;
+            if (!$destinationCityId) {
+                // Validate destination name is not empty
+                if (empty(trim($destination))) {
+                    Log::warning('Rajaongkir: Destination is empty');
+                    return [];
+                }
+                $destinationCityId = $this->getCityIdByName($destination);
+            }
+            if (!$destinationCityId) {
                 Log::warning('Rajaongkir: Destination not found for: ' . $destination);
                 return [];
             }
 
             $response = $this->httpClient()->post($this->baseUrl . 'calculate/domestic-cost', [
-                'origin' => $originId,
-                'destination' => $destinationId,
+                'origin' => $originCityId,
+                'destination' => $destinationCityId,
                 'weight' => $weight,
                 'courier' => $courier,
             ]);

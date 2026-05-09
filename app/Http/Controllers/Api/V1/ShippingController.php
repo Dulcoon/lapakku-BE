@@ -34,8 +34,16 @@ class ShippingController extends Controller
             ], 400);
         }
 
-        $originCity = SettingsService::get('shipping_origin_city') ?: config('app.shipping_origin_city') ?: '501';
-        
+        $originSetting = SettingsService::get('shipping_origin_city') ?: config('app.shipping_origin_city') ?: '501';
+        // If stored as "id:name", extract the ID
+        $originId = null;
+        $originCity = $originSetting;
+        if (str_contains($originSetting, ':')) {
+            $parts = explode(':', $originSetting, 2);
+            $originId = $parts[0];
+            $originCity = $parts[1] ?? '';
+        }
+
         $couriers = RajaongkirService::couriers();
         
         $results = [];
@@ -46,7 +54,9 @@ class ShippingController extends Controller
                     $originCity,
                     $address->city,
                     $request->weight,
-                    $courier
+                    $courier,
+                    $originId,
+                    $address->city_id
                 );
 
                 foreach ($costResults as $cost) {
@@ -162,6 +172,27 @@ class ShippingController extends Controller
             'tracking_number' => $order->tracking_number,
             'status' => $tracking['status'] ?? null,
             'history' => $tracking['history'] ?? [],
+        ]);
+    }
+
+    public function searchCities(Request $request)
+    {
+        $request->validate([
+            'search' => 'required|string|min:2',
+        ]);
+
+        $results = $this->rajaongkir->searchDestination($request->search);
+
+        return response()->json([
+            'cities' => array_map(function ($city) {
+                return [
+                    'id' => $city['id'] ?? null,
+                    'name' => $city['full_name'] ?? $city['name'] ?? '',
+                    'type' => $city['type'] ?? '',
+                    'province' => $city['province'] ?? '',
+                    'postal_code' => $city['postal_code'] ?? '',
+                ];
+            }, $results),
         ]);
     }
 

@@ -53,6 +53,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/addresses/{id}/set-default', [\App\Http\Controllers\Api\V1\AddressController::class, 'setDefault']);
 
         // Shipping
+        Route::get('/shipping/cities', [\App\Http\Controllers\Api\V1\ShippingController::class, 'searchCities']);
         Route::get('/shipping/couriers', [\App\Http\Controllers\Api\V1\ShippingController::class, 'couriers']);
         Route::post('/shipping/cost', [\App\Http\Controllers\Api\V1\ShippingController::class, 'getShippingCosts']);
         Route::post('/shipping/tracking', [\App\Http\Controllers\Api\V1\ShippingController::class, 'getTracking']);
